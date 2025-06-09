@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Join Group</title>
+  <style>
+    /* Your styles here (similar to what you already have for the other page) */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f5f6fa, #c9d6e3);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 40px 30px;
+      border-radius: 12px;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 500px;
+      transition: all 0.3s ease;
+    }
+
+    .container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 24px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Join Group</h2>
+    <div id="groupDetails"></div>
+    <button id="joinGroupButton">Join Group</button>
+  </div>
+
+  <script type="module">
+    import { auth, db } from './firebase-config.js';
+    import { doc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
+
+    let currentUser = null;
+    let groupId = null;
+
+    // Get the groupId from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    groupId = urlParams.get('group');
+
+    if (!groupId) {
+      alert("Group ID is missing.");
+      window.location.href = '/'; // Redirect to homepage or error page
+    }
+
+    const groupDetailsContainer = document.getElementById('groupDetails');
+    const joinGroupButton = document.getElementById('joinGroupButton');
+
+    // Handle user authentication and fetch group details
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        alert('You must be signed in to join a group.');
+        return;
+      }
+
+      currentUser = user;
+
+      try {
+        // Fetch the group details from Firestore using groupId
+        const groupRef = doc(db, "groups", groupId);
+        const groupSnapshot = await getDoc(groupRef);
+
+        if (groupSnapshot.exists()) {
+          const groupData = groupSnapshot.data();
+          const groupName = groupData.name;
+          const groupMembers = groupData.members || [];
+
+          // Display the group details
+          groupDetailsContainer.innerHTML = `
+            <h3>${groupName}</h3>
+            <p>Department: ${groupData.department || 'N/A'}</p>
+            <p>Members: ${groupMembers.length}</p>
+          `;
+
+          // Check if the user is already a member of the group
+          if (groupMembers.includes(currentUser.uid)) {
+            joinGroupButton.disabled = true;
+            joinGroupButton.textContent = "You are already a member of this group.";
+          }
+
+          // Join the group when the button is clicked
+          joinGroupButton.addEventListener('click', async () => {
+            if (groupMembers.includes(currentUser.uid)) {
+              alert("You are already a member of this group.");
+              return;
+            }
+
+            // Add the current user to the group members
+            groupMembers.push(currentUser.uid);
+            await updateDoc(groupRef, { members: groupMembers });
+
+            alert("You have successfully joined the group!");
+            joinGroupButton.disabled = true;
+            joinGroupButton.textContent = "You are now a member.";
+          });
+        } else {
+          alert("Group not found.");
+        }
+      } catch (error) {
+        console.error("Error fetching group details:", error);
+        alert("Error joining the group.");
+      }
+    });
+  </script>
+
+</body>
+</html>

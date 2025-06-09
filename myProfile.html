@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile Page</title>
+  <link rel="stylesheet" href="myProfile.css" />
+</head>
+
+<body>
+  <div class="profile-container">
+    <div class="profile-header">
+      <!-- Profile picture (click to upload) -->
+      <input type="file" id="profilePicInput" accept="image/*" style="display: none;" />
+      <img id="profile-img" src="https://www.w3schools.com/howto/img_avatar.png"
+           alt="Profile Picture" class="profile-pic"
+           onclick="handleImageClick()" />
+    </div>
+
+    <form id="profileForm" class="profile-info">
+      <label for="name">Name:</label>
+      <input type="text" id="name" readonly>
+
+      <label for="email">Email:</label>
+      <input type="email" id="email" readonly>
+
+      <label for="department">Department:</label>
+      <input type="text" id="department" readonly>
+    </form>
+
+    <div class="editfield">
+      <button id="edit-btn" type="button" onclick="editProfile()">Edit</button>
+      <button id="logout-btn" type="button" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, db } from './firebase-config.js';
+    import { doc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+    import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
+
+    let isEditing = false;
+
+    // Load user profile
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+
+        if (userSnap.exists()) {
+          const data = userSnap.data();
+          document.getElementById('name').value = data.name || '';
+          document.getElementById('email').value = data.email || '';
+          document.getElementById('department').value = data.department || '';
+          document.getElementById('profile-img').src = data.profilePicBase64 || 'https://www.w3schools.com/howto/img_avatar.png';
+        } else {
+          alert("No user data found.");
+        }
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    // Enable editing
+    window.editProfile = () => {
+      document.querySelectorAll('.profile-info input').forEach(input => input.readOnly = false);
+      isEditing = true;
+      document.getElementById('edit-btn').innerText = "Save";
+      document.getElementById('edit-btn').setAttribute('onclick', 'saveProfile()');
+    };
+
+    // Click on image to upload
+    window.handleImageClick = () => {
+      if (isEditing) {
+        document.getElementById('profilePicInput').click();
+      }
+    };
+
+    // Handle file input and save image as Base64
+    document.getElementById('profilePicInput').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      const user = auth.currentUser;
+      if (!file || !user) return;
+
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64String = reader.result;
+
+        const userRef = doc(db, "users", user.uid);
+        await updateDoc(userRef, {
+          profilePicBase64: base64String
+        });
+
+        document.getElementById('profile-img').src = base64String;
+        alert("Profile picture updated!");
+      };
+
+      reader.readAsDataURL(file); // Convert image to base64 string
+    });
+
+    // Save department changes
+    window.saveProfile = async () => {
+      const department = document.getElementById('department').value.trim();
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const userRef = doc(db, "users", user.uid);
+      await updateDoc(userRef, {
+        department: department || null
+      });
+
+      document.querySelectorAll('.profile-info input').forEach(input => input.readOnly = true);
+      isEditing = false;
+      document.getElementById('edit-btn').innerText = "Edit";
+      document.getElementById('edit-btn').setAttribute('onclick', 'editProfile()');
+
+      alert("Profile updated!");
+    };
+
+    // Logout
+    window.logout = () => {
+      signOut(auth).then(() => {
+        window.location.href = "login.html";
+      });
+    };
+  </script>
+</body>
+</html>

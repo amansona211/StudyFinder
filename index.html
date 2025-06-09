@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <link href='https://fonts.googleapis.com/css?family=Great+Vibes' rel='stylesheet'>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert2 -->
+  <script type="module" src="app.js"></script>
+  <style>
+    form {
+      height: 600px;
+      padding: 30px 35px;
+    }
+    .login-link {
+      margin-top: 20px;
+      display: block;
+      color: #00f124;
+      text-decoration: none;
+      font-family: 'Poppins', sans-serif;
+      font-size: 20px;
+      text-align: center;
+    }
+    .login-link:hover {
+      text-decoration: underline;
+    }
+    body {
+      overflow: hidden;
+    }
+  
+  </style>
+</head>
+<body>
+    <div class="background">
+        <div class="shape"></div>
+        <div class="shape"></div>
+      </div>
+    
+
+    <h3>Sign Up</h3>
+  <form id="registerForm">
+    <label for="name">Full Name</label>
+    <input type="text" id="regName" placeholder="Name" required />
+
+    <label for="username">Username (Email)</label>
+    <input type="email" id="regEmail" placeholder="Email" required />
+
+    <label for="password">Password</label>
+    <input type="password" id="regPassword" placeholder="Password" required />
+
+    <label for="confirm-password">Confirm Password</label>
+    <input type="password" id="regConfirmPassword" placeholder="Confirm Password" required />
+    
+    <button type="submit">Register</button>
+    <a href="login.html" class="login-link">Already have an account? Log In</a>here</a></p>
+ 
+    <div id="loader" class="hidden"></div>
+
+
+  </form>
+</body>
+</html>

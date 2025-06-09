@@ -1,0 +1,26 @@
+first install the node.js 
+
+open cmd and run commands
+# Download and install fnm:
+winget install Schniz.fnm
+
+# Download and install Node.js:
+fnm install 22
+
+# Verify the Node.js version:
+node -v # Should print "v22.15.1".
+
+# Verify npm version:
+npm -v # Should print "11.4.0".(it will show according to the version)
+
+
+
+@how to export and export database in firebase
+
+1. first go the file path directory and open cmd.
+
+# to export database 
+ >  npx -p node-firestore-import-export firestore-export -a appConfig.json -b backup.json
+
+# to import databse
+ >  npx -p node-firestore-import-export firestore-import -a appConfig.json -b backup.json

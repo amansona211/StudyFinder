@@ -1,0 +1,234 @@
+
+
+
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+      /* Style for login link */
+
+#error-message {
+  color: red;
+  text-align: center;
+  margin-top: 10px;
+  display: none;
+}
+#load {
+  text-align: center;
+  margin-top: 10px;
+}
+
+
+/* Navbar Styling */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: black;
+    color: white;
+}
+
+.logo a {
+    text-decoration: none;
+    font-family: 'Great Vibes';
+    font-size: 40px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.653);
+    margin-left: 80px;
+}
+.nav-links {
+    list-style: none;
+    display: flex;
+    /* padding-top: 10px; */
+}
+
+.nav-links li {
+    margin: -65px 50px;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    /* padding-top: 10px; */
+}
+
+*,
+*:before,
+*:after {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  background-color: black;
+  /* overflow: hidden; */
+}
+
+.background {
+  width: 430px;
+  height: 520px;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  left: 50%;
+  top: 50%;
+}
+
+.background .shape {
+  height: 200px;
+  width: 200px;
+  position: absolute;
+  border-radius: 50%;
+  animation: float 6s ease-in-out infinite;
+}
+
+.shape:first-child {
+  background: linear-gradient(#1845ad, #23a2f6);
+  left: -80px;
+  top: -80px;
+  animation-delay: 0s;
+}
+
+.shape:last-child {
+  background: linear-gradient(to right, #ff512f, #f09819);
+  right: -30px;
+  bottom: -80px;
+  animation-delay: 2s;
+}
+
+form {
+  height: 520px;
+  width: 400px;
+  background-color: rgba(255, 255, 255, 0.13);
+  position: absolute;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
+  padding: 50px 35px;
+  animation: fadeIn 1.5s ease-out;
+}
+
+form * {
+  font-family: 'Poppins', sans-serif;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  outline: none;
+  border: none;
+}
+
+form h3 {
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 42px;
+  text-align: center;
+}
+
+label {
+  display: block;
+  margin-top: 30px;
+  font-size: 21px;
+  font-weight: 500;
+}
+
+input {
+  display: block;
+  height: 50px;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.07);
+  border-radius: 3px;
+  padding: 0 10px;
+  margin-top: 8px;
+  font-size: 20px;
+  font-weight: 300;
+}
+
+::placeholder {
+  color: #e5e5e5;
+}
+
+button {
+  margin-top: 20px;
+  width: 100%;
+  background-color: #ffffff;
+  color: #080710;
+  padding: 15px 0;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 35px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background-color: #00f124;
+  transform: scale(1.05);
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(20px);
+  }
+}
+
+@media (max-width: 768px) {
+  .background, form {
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    position: absolute;
+  }
+
+  .background {
+    width: 430px;
+    height: 520px;
+  }
+
+  form {
+    width: 400px;
+    height: 520px;
+  }
+
+  .shape {
+    height: 200px;
+    width: 200px;
+  }
+}
+/* CSS */
+#loader {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #3498db;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite;
+}
+
+.hidden {
+  display: none;
+}
+
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

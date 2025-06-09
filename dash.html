@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Study Finder</title>
+  <link rel="stylesheet" href="dashstyle.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="logo">
+        <a href="dash.html">
+          <i class="fas fa-graduation-cap"></i> ASSAM DON BOSCO Study Finder
+        </a>
+      </div>
+
+      <div class="profile-button-container">
+        <button class="profile-button" onclick="window.location.href='myProfile.html'">
+          <i class="fas fa-user"></i>
+          <span id="user-info">Checking authentication...</span>
+        </button>
+      </div>
+      <button id="logout-button">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    </nav>
+  </header>
+
+  <div class="main-container">
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h2>Groups
+          <span class="create-group" role="button" aria-label="Create new group" onclick="window.location.href='creategroup.html'">
+            <i class="fas fa-plus"></i>
+          </span>
+        </h2>
+        <div class="search-bar">
+          <label for="searchInput" class="sr-only">Search groups</label>
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input type="text" id="searchInput" placeholder="Search groups..." aria-label="Search groups" />
+        </div>
+      </div>
+      <div class="group-list" id="groupList">
+        <div class="loading-spinner hidden" id="groupLoading">
+          <i class="fas fa-spinner fa-spin"></i> Loading groups...
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-window hidden" id="chatWrapper">
+      <div id="group-message-container">
+        <div class="chat-header">
+
+          <button class="back-button" id="backButton" aria-label="Back to group list">←</button>
+
+          <div id="group-image" class="group-img-small"></div>
+
+          <div class="group-name-wrapper">
+           <!--<i class="fas fa-users group-icon" aria-hidden="true"></i>-->
+            <div id="group-name"></div>
+          </div>
+
+          <div class="group-profile-button-container">
+            <button class="group-profile-button" id="groupProfileButton">
+              <i class="fas fa-users group-icon"></i>
+            </button>
+          </div>
+        
+        </div>
+
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input">
+          <input type="text" id="message-input" placeholder="Type a message" aria-label="Type a message" />
+          <button id="send-message">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, db } from './firebase-config.js';
+    import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
+    import { collection, getDocs, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, getDoc } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+
+    let currentUser = null;
+    let currentGroupId = null;
+    let allGroups = [];
+    let unsubscribeMessages = null;
+
+    const groupListEl = document.getElementById('groupList');
+    const searchInput = document.getElementById('searchInput');
+    const chatWrapper = document.getElementById('chatWrapper');
+    const sidebar = document.getElementById('sidebar');
+    const groupNameEl = document.getElementById('group-name');
+    const groupImageEl = document.getElementById('group-image');
+    const chatMessages = document.getElementById('chatMessages');
+    const messageInput = document.getElementById('message-input');
+    const sendMessageBtn = document.getElementById('send-message');
+    const backButton = document.getElementById('backButton');
+    const groupProfileButton = document.getElementById('groupProfileButton');
+
+    // Add event listener for pressing Enter to send the message
+    messageInput.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter' && !event.shiftKey) { // If Enter is pressed (and Shift is not pressed)
+        event.preventDefault(); // Prevents the default behavior of adding a new line
+        sendMessage(); // Call the sendMessage function
+      }
+    });
+
+    // Function to send message
+    async function sendMessage() {
+      const text = messageInput.value.trim();
+      if (!text || !currentGroupId) return;
+      await addDoc(collection(db, 'groups', currentGroupId, 'messages'), {
+        text,
+        senderId: currentUser.uid,
+        senderName: currentUser.email,
+        timestamp: serverTimestamp()
+      });
+      messageInput.value = ''; // Clear the input after sending
+    }
+
+    // Merging loadGroupProfile function into one
+    async function loadGroupProfile() {
+      const groupId = sessionStorage.getItem('currentGroupId');
+      if (!groupId) {
+        Swal.fire({ icon: 'error', title: 'No group selected!' });
+        return;
+      }
+
+      try {
+        const groupDocRef = doc(db, 'groups', groupId);
+        const groupDoc = await getDoc(groupDocRef);
+        if (!groupDoc.exists()) {
+          Swal.fire({ icon: 'error', title: 'Group not found!' });
+          return;
+        }
+
+        const groupData = groupDoc.data();
+
+        // Check if the profile elements exist before trying to modify them
+        const groupNameEl = document.getElementById('groupName');
+        const groupDepartmentEl = document.getElementById('groupDepartment');
+        const groupCreatedByEl = document.getElementById('groupCreatedBy');
+        const groupCreatedAtEl = document.getElementById('groupCreatedAt');
+        const joinLinkEl = document.getElementById('joinLink');
+        const groupProfileDetailsEl = document.getElementById('group-profile-details');
+
+        if (groupProfileDetailsEl.style.display === "none" || !groupProfileDetailsEl.style.display) {
+          groupProfileDetailsEl.style.display = "block";  // Show the profile
+        } else {
+          groupProfileDetailsEl.style.display = "none";   // Hide the profile
+        }
+
+        if (groupNameEl) groupNameEl.innerText = groupData.name;
+        if (groupDepartmentEl) groupDepartmentEl.innerText = groupData.department || 'None';
+        if (groupCreatedByEl) groupCreatedByEl.innerText = groupData.createdBy;
+        if (groupCreatedAtEl) groupCreatedAtEl.innerText = new Date(groupData.createdAt.seconds * 1000).toLocaleString();
+        if (joinLinkEl) {
+          joinLinkEl.href = groupData.joinLink;
+          joinLinkEl.innerText = groupData.joinLink;
+        }
+
+      } catch (error) {
+        console.error('Error fetching group profile:', error);
+        Swal.fire({ icon: 'error', title: 'Error loading group profile.' });
+      }
+    }
+
+    // Add event listener to the Group Profile button
+    groupProfileButton.addEventListener('click', loadGroupProfile);
+
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
+      currentUser = user;
+
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        document.getElementById('user-info').textContent = `Welcome, ${userData.name}`;
+      } else {
+        document.getElementById('user-info').textContent = `Welcome, ${user.email}`;
+      }
+
+      document.getElementById('groupLoading').classList.remove('hidden');
+      const querySnapshot = await getDocs(collection(db, "groups"));
+      allGroups = querySnapshot.docs.map(doc => ({ ...doc.data(), groupId: doc.id }));
+      document.getElementById('groupLoading').classList.add('hidden');
+      renderGroupList(allGroups);
+    });
+
+    document.getElementById('logout-button').addEventListener('click', async () => {
+      await signOut(auth);
+      Swal.fire('Logged out!');
+      setTimeout(() => window.location.href = 'login.html', 1500);
+    });
+
+    function renderGroupList(groups) {
+      groupListEl.innerHTML = '';
+      if (groups.length === 0) {
+        groupListEl.innerHTML = '<p>No groups found.</p>';
+        return;
+      }
+      groups.forEach(group => {
+        const groupItem = document.createElement('div');
+        groupItem.className = 'group-item';
+        groupItem.innerHTML = `
+          <div class="group-info">
+            <h3>${group.name}</h3>
+            <span class="department-tag">${group.department || 'General'}</span>
+          </div>
+        `;
+        groupItem.onclick = () => openGroupChat(group);
+        groupListEl.appendChild(groupItem);
+      });
+    }
+
+    searchInput.addEventListener('input', debounce(() => {
+      const searchTerm = searchInput.value.toLowerCase();
+      const filteredGroups = allGroups.filter(group =>
+        group.name.toLowerCase().includes(searchTerm)
+      );
+      renderGroupList(filteredGroups);
+    }, 300));
+
+
+
+
+    async function openGroupChat(group) {
+  currentGroupId = group.groupId;
+  sessionStorage.setItem('currentGroupId', currentGroupId);
+
+  document.getElementById('groupProfileButton').onclick = () => {
+    window.location.href = `group-profile.html?group=${group.groupId}`;
+  };
+
+  // Check if the user is a member of the group
+  if (!group.members || !group.members.includes(currentUser.uid)) {
+    Swal.fire({ icon: 'warning', title: 'You are not a member of this group!', text: 'You need to join the group to start chatting.' });
+    return;
+  }
+
+  // Show chat view
+  chatWrapper.classList.remove('hidden');
+  groupNameEl.textContent = group.name;
+  groupImageEl.innerHTML = '';
+  if (group.imageURL) {
+    const img = document.createElement('img');
+    img.src = group.imageURL;
+    img.alt = `${group.name} Image`;
+    groupImageEl.appendChild(img);
+  }
+  chatMessages.innerHTML = '<p>Loading messages...</p>';
+  loadGroupMessages(currentGroupId);
+
+  if (window.innerWidth < 768) {
+    // Mobile: hide sidebar
+    sidebar.style.display = 'none';
+    chatWrapper.style.display = 'flex';
+  } else {
+    // Desktop: show both
+    sidebar.style.display = 'flex';
+    chatWrapper.style.display = 'flex';
+  }
+}
+
+    async function loadGroupMessages(groupId) {
+      if (unsubscribeMessages) unsubscribeMessages();
+      try {
+        const messagesRef = collection(db, 'groups', groupId, 'messages');
+        const q = query(messagesRef, orderBy('timestamp'));
+        unsubscribeMessages = onSnapshot(q, snapshot => {
+          chatMessages.innerHTML = '';
+          snapshot.forEach(doc => {
+            const msg = doc.data();
+            const messageWrapper = document.createElement('div');
+            messageWrapper.classList.add('chat-message', msg.senderId === currentUser.uid ? 'current-user' : 'other-user');
+            const msgText = document.createElement('div');
+            msgText.classList.add('message-text');
+            msgText.textContent = msg.text;
+            const msgMeta = document.createElement('div');
+            msgMeta.classList.add('message-meta');
+            const name = msg.senderName || 'User';
+            const time = msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || '';
+            msgMeta.textContent = `${name} • ${time}`;
+            messageWrapper.appendChild(msgText);
+            messageWrapper.appendChild(msgMeta);
+            chatMessages.appendChild(messageWrapper);
+          });
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, error => {
+          Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to load messages. Please try again.' });
+        });
+      } catch (error) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to load messages. Please try again.' });
+      }
+    }
+
+    sendMessageBtn.addEventListener('click', sendMessage);
+
+    backButton.addEventListener('click', () => {
+  // Clear chat content and hide chat
+  chatMessages.innerHTML = '';
+  currentGroupId = null;
+
+  if (window.innerWidth < 768) {
+    // Mobile: show only sidebar
+    chatWrapper.style.display = 'none';
+    sidebar.style.display = 'block';
+  } else {
+    // Desktop: clear chat area but keep layout
+    chatWrapper.classList.add('hidden');
+  }
+});
+
+  </script>
+</body>
+</html>

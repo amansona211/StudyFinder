@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Create Group Chat</title>
+  <style>
+ body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #f5f6fa, #c9d6e3);
+  margin: 0;
+  padding: 40px 0; /* Optional: add some vertical spacing */
+  display: flex;
+  justify-content: center;
+  /* Remove align-items and height */
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+
+  .container {
+    background-color: #fff;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+    transition: all 0.3s ease;
+  }
+
+  .container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #555;
+  }
+
+  input[type="text"],
+  input[type="file"],
+  select {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #333;
+    background-color: #f9fafb;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+  }
+
+  input[type="text"]:focus,
+  input[type="file"]:focus,
+  select:focus {
+    border-color: #007bff;
+    outline: none;
+    background-color: #f1f7ff;
+  }
+
+  button {
+    width: 100%;
+    padding: 14px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+
+  button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+  }
+
+  .user-list label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: normal;
+    font-size: 14px;
+    color: #666;
+
+    
+  }
+  .user-list {
+  max-height: 200px; /* Adjust height as needed */
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+
+
+  .select-all {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #333;
+  }
+
+  .select-all-checkbox {
+    margin-right: 10px;
+    cursor: pointer;
+  }
+
+  .select-all label {
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .user-item {
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    font-size: 16px;
+    color: #333;
+    transition: all 0.3s ease;
+  }
+
+  .user-item:hover {
+    background-color: #e6f7ff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .user-checkbox {
+    margin-right: 12px;
+    cursor: pointer;
+    transform: scale(1.2);
+  }
+
+  .user-list::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .user-list::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 4px;
+  }
+
+  .user-list::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+  }
+
+  .user-list::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Create Group Chat</h2>
+    <form id="createGroupForm">
+      <label for="groupName">Group Name <span style="color: red;">*</span></label>
+      <input type="text" id="groupName" name="groupName" placeholder="Enter group name" required>
+
+      <label for="groupDepartment">Department <span style="color: red;">*</span></label>
+      <select id="departmentFilter" name="departmentFilter">
+        <option value="">Select Department</option>
+        <option value="All">All Departments</option>
+        <!-- More department options can go here -->
+        <option value="MCA">MCA</option>
+         <option value="BCA">BCA</option>
+        <option value="MBA">MBA</option>
+        <option value="BBA">BBA</option>
+        
+      </select>
+
+      <label for="groupImage">Group Image (optional)</label>
+      <input type="file" id="groupImage" name="groupImage" accept="image/*">
+
+      <label for="userSearch">Search Users</label>
+      <input type="text" id="userSearch" placeholder="Search by name or email">
+
+      <div class="select-all">
+        <input type="checkbox" id="selectAll" class="select-all-checkbox" />
+        <label for="selectAll">Select All</label>
+      </div>
+
+      <div id="userListContainer" class="user-list">
+        <!-- User list will be populated here -->
+      </div>
+
+      <div id="selectedCount" style="margin: 10px 0; font-weight: bold;"></div>
+
+      <button type="submit">Create Group</button>
+    </form>
+
+    <div id="linkContainer" style="margin-top: 20px;"></div>
+  </div>
+
+  <script type="module">
+    import { auth, db } from './firebase-config.js';
+    import {
+      collection, addDoc, serverTimestamp, updateDoc, doc,
+      getDocs
+    } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
+
+    // Select All Checkbox functionality
+    document.getElementById("selectAll").addEventListener("change", function() {
+      const isChecked = this.checked;
+      const userCheckboxes = document.querySelectorAll(".user-checkbox");
+
+      // Set the checked state of all user checkboxes
+      userCheckboxes.forEach(function(checkbox) {
+        checkbox.checked = isChecked;
+      });
+
+      // Update selected users list
+      updateSelectedUsers();
+    });
+
+    const form = document.getElementById('createGroupForm');
+    const linkContainer = document.getElementById('linkContainer');
+    const userListContainer = document.getElementById('userListContainer');
+    const selectedCount = document.getElementById('selectedCount');
+    const userSearch = document.getElementById('userSearch');
+    const departmentFilter = document.getElementById('departmentFilter');
+
+    let currentUser = null;
+    let allRenderedUsers = [];
+    const selectedUserIds = new Set();
+
+    function updateSelectedCount() {
+      selectedCount.textContent = `Selected: ${selectedUserIds.size} user${selectedUserIds.size !== 1 ? 's' : ''}`;
+    }
+
+    function updateSelectedUsers() {
+      const userCheckboxes = document.querySelectorAll(".user-checkbox");
+      userCheckboxes.forEach(checkbox => {
+        if (checkbox.checked) {
+          selectedUserIds.add(checkbox.value);
+        } else {
+          selectedUserIds.delete(checkbox.value);
+        }
+      });
+      updateSelectedCount();
+    }
+
+    function renderUserList(filteredUsers) {
+  if (filteredUsers.length === 0) {
+    userListContainer.innerHTML = "<p>No users match your search.</p>";
+    updateSelectedCount();
+    return;
+  }
+
+  const html = filteredUsers.map(user => {
+    // Check if user has a department, if not, display "No Dept"
+    const department = user.department || "No Department"; 
+    const role = user.role || "user"; // Default role if not set
+
+    return `
+      <label>
+        <input type="checkbox" name="members" value="${user.id}" class="user-checkbox" ${selectedUserIds.has(user.id) ? "checked" : ""}>
+        ${user.displayName || user.email} (${department}, ${role})
+      </label>
+    `;
+  }).join("");
+
+  userListContainer.innerHTML = `<label>Select Members:</label><br>${html}`;
+
+  // Add checkbox event listeners
+  userListContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
+    input.addEventListener('change', updateSelectedUsers);
+  });
+
+  updateSelectedCount();
+}
+
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        alert('You must be signed in to create a group.');
+        form.querySelector('button').disabled = true;
+        return;
+      }
+
+      currentUser = user;
+
+      try {
+        const usersRef = collection(db, "users");
+        const snapshot = await getDocs(usersRef);
+
+        const users = [];
+        snapshot.forEach(doc => {
+          const userData = doc.data();
+          if (doc.id !== currentUser.uid && userData.role !== "admin") {
+            users.push({ id: doc.id, ...userData });
+          }
+        });
+
+        allRenderedUsers = users;
+        renderUserList(allRenderedUsers);
+      } catch (err) {
+        console.error("Failed to fetch users:", err);
+        userListContainer.innerHTML = "<p>Error loading users.</p>";
+      }
+
+      // Live search
+      userSearch.addEventListener("input", (e) => {
+        const query = e.target.value.toLowerCase();
+        const filtered = allRenderedUsers.filter(user => {
+          const name = user.displayName?.toLowerCase() || "";
+          const email = user.email?.toLowerCase() || "";
+          return name.includes(query) || email.includes(query);
+        });
+        renderUserList(filtered);
+      });
+
+      // Filter users by department
+      departmentFilter.addEventListener('change', (e) => {
+        const department = e.target.value;
+        let filteredUsers = allRenderedUsers;
+
+        if (department && department !== 'All') {
+          filteredUsers = allRenderedUsers.filter(user => user.department === department);
+        }
+
+        renderUserList(filteredUsers);
+      });
+
+      // Submit group creation
+     form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const groupName = form.groupName.value.trim();
+  const department = form.departmentFilter.value.trim(); // ✅ Corrected here
+
+  if (!groupName || !department) {
+    alert("Group name and department are required.");
+    return;
+  }
+
+        // Include the creator (current user) and all selected members
+        const selectedMembers = Array.from(new Set([...selectedUserIds, currentUser.uid]));
+
+        try {
+          // Create the group document in Firestore
+          const docRef = await addDoc(collection(db, "groups"), {
+            name: groupName,
+            createdBy: currentUser.uid,
+            department: department,
+            createdAt: serverTimestamp(),
+            members: selectedMembers
+          });
+
+          const groupId = docRef.id;
+          const joinLink = `${window.location.origin}/join.html?group=${groupId}`;
+
+          // Update the document with the join link
+          await updateDoc(doc(db, "groups", groupId), {
+            groupId,
+            joinLink
+          });
+
+          // Display the join link after successful group creation
+          linkContainer.innerHTML = `
+            <strong>Group created!</strong><br>
+            <a href="${joinLink}" target="_blank">${joinLink}</a><br>
+            Share this link with others to let them join the group.
+          `;
+        } catch (error) {
+          console.error("Error creating group:", error);
+          alert("Error creating group.");
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

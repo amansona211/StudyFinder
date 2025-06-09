@@ -1,0 +1,620 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'inter', Arial, Helvetica, sans-serif;
+    background-color: #f0f2f5;
+    
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #07175e;
+    padding: 15px 30px;
+    color: white;
+}
+
+/* Logo styling */
+.logo a {
+    color: #ffffff;                /* White text color for a clean, professional look */
+    font-size: 30px;                /* Slightly larger for better visibility */
+    font-weight: 600;               /* Slightly lighter than bold for a more refined look */
+    text-decoration: none;          /* Remove underline for a cleaner appearance */
+    pointer-events: none;           /* Prevent interaction with the logo */
+    display: flex;                  /* Flexbox to align text and icon */
+    align-items: center;            /* Vertically center the text and icon */
+    gap: 12px;                      /* Space between the icon and text */
+    font-family: 'Segoe UI', sans-serif; /* Modern, clean font */
+    letter-spacing: 1px;            /* Subtle letter spacing for readability */
+    text-transform: uppercase;      /* Capitalize the letters for a strong look */
+    transition: color 0.3s ease, transform 0.3s ease; /* Smooth transition effects */
+}
+
+/* Hover effect for the logo */
+.logo a:hover {
+    color: #007bff;                 /* Change text color to blue on hover */
+    text-decoration: none;          /* Keep it clean, no underline */
+    transform: translateY(-4px);    /* Slight lift effect on hover */
+}
+
+/* Focused state (when tabbed into) */
+.logo a:focus {
+    outline: none;                  /* Remove default focus outline */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.6); /* Light blue glow when focused */
+}
+
+/* Icon styling inside the logo */
+.logo i {
+    font-size: 28px;                /* Adjust icon size to match the text */
+    transition: transform 0.3s ease; /* Smooth transition for icon on hover */
+}
+
+/* Optional: Icon Hover Effect */
+.logo a:hover i {
+    transform: translateX(5px);     /* Slight movement of the icon on hover */
+}
+
+
+.nav-links {
+    list-style: none;
+    display: flex;
+}
+
+.nav-links li a {
+    color: white;
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    transition: background 0.3s;
+}
+
+.nav-links li a:hover {
+    background-color: #22128c;
+}
+
+/* Layout */
+.main-container {
+    display: flex;
+    height: calc(100vh - 65px); /* subtract navbar height */
+}
+
+/* Sidebar: Group List */
+.sidebar {
+    width: 30%;
+    max-width: 350px;
+    background-color: #fff;
+    border-right: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    padding: 15px;
+    border-bottom: 1px solid #ffffff;
+    background-color: #ededed;
+}
+
+.sidebar-header h2 {
+    display: flex;
+    justify-content: space-between; /* Aligns text and icon */
+    align-items: center;
+    font-size: 22px;
+}
+
+.create-group i {
+    font-size: 20px;
+    cursor: pointer;
+    color: white; /* Green color */
+    padding: 7px;
+    border-radius: 50%;
+    background-color: #17e417; /* Light gray background */
+    transition: background-color 0.3s ease;
+}
+
+.create-group i:hover {
+    background-color: #ddd; /* Darker gray when hovered */
+}
+
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin-bottom: 10px;
+  }
+
+  .search-bar input {
+    border: none;
+    outline: none;
+    flex: 1;
+    font-size: 14px;
+  }
+
+.search-bar i {
+    margin-right: 8px;
+    color: #888;
+  }
+  
+.group-name {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+
+/* Group list items */
+.groups-list {
+    max-height: 400px; /* Sets a maximum height */
+    overflow-y: auto;  /* Adds vertical scroll only when content exceeds max height */
+}
+
+
+.group-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-bottom: 1px solid #eee;
+    
+
+}
+
+.group-item:hover {
+    background-color: #f5f5f5;
+}
+
+.group-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 15px;
+}
+
+.group-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.group-info h3 {
+    font-size: 16px;
+    margin-bottom: 5px;
+    color: #222;
+}
+
+.group-info .time {
+    font-size: 13px;
+    color: #777;
+}
+.chat-window {
+    flex: 1;
+    background-color: #e5ddd5;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.before-message {
+    margin: auto;
+    font-size: 20px;
+    color: #555;
+    text-align: center;
+    padding: 20px;
+}
+
+.hidden {
+    display: none;
+}
+
+#group-message-container {
+    flex-direction: column;
+    height: 100%;
+    display: flex;
+}
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    background-color: #07175e;
+    color: white;
+     min-height: 32px;
+}
+
+.group-img-small {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-size: cover;
+    margin-right: 6px;
+}
+
+#group-name {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    margin: 10px 12px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background-color: #c0dce0;
+    background-size: cover;
+    background-position: center;
+}
+
+
+
+
+#message-input {
+    flex: 1;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    margin-right: 10px;
+    outline: none;
+}
+
+#send-message {
+    padding: 10px 20px;
+    background-color: #07175e;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#send-message:hover {
+    background-color: #0c258c;
+}
+
+  
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    /* max-height: calc(100vh - [header+input height]);  */
+}
+
+ 
+  .chat-input {
+    display: flex;
+    padding: 10px;
+    background-color: #fff;
+    border-top: 1px solid #ccc;
+  }
+  .chat-input {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+}
+  
+  .chat-input input {
+    flex: 1;
+    padding: 10px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+  }
+  
+  .chat-input button {
+    background-color: #128c7e;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+  }
+  
+
+
+/* Responsive */
+@media (max-width: 768px) {
+    html, body {
+        height: auto;
+        overflow: auto; /* Allow scrolling */
+    }
+
+     .chat-header {
+   padding: 4px 8px;          /* Reduced padding for compactness */
+    min-height: 32px;          /* Set a minimum height */
+    font-size: 14px;           /* Adjusted font size */
+    display: flex;
+    align-items: center;
+    background-color: #07175e;
+    color: white;
+  }
+  .chat-header .group-img-small {
+    width: 20px;
+    height: 20px;
+    margin-right: 4px;
+  }
+
+ #group-name {
+    font-size: 13px;           /* Adjusted font size */
+    overflow: hidden;
+    text-overflow: ellipsis;   /* Handle overflow text */
+    white-space: nowrap;
+  }
+
+
+
+    .main-container {
+    display: flex;
+    height: calc(100vh - 65px); /* subtract navbar height */
+}
+
+
+    .sidebar {
+        width: 100%;
+        max-width: 100%;
+        height: auto; /* Let the sidebar adjust its height */
+        overflow-y: auto; /* Enable vertical scrolling if content overflows */
+    }
+
+     .group-profile-button-container .group-profile-button,
+  .back-button {
+    padding: 2px 6px;
+    font-size: 12px;
+    border-radius: 12px;  
+  }
+
+    .chat-window {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: auto; /* Allow scrolling within the chat window */
+        height: auto; /* Let the chat window adjust its height */
+    }
+}
+
+.profile-button-container {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    margin: 20px;
+  }
+  
+  .profile-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .profile-button i {
+    font-size: 18px;
+  }
+  
+  .profile-button:hover {
+    background-color: #0056b3;
+  }
+  
+  
+.group-profile-button-container {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    margin: 20px;
+  }
+  .group-profile-button-container .group-profile-button {
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 4px;
+}
+  
+  .group-profile-button {
+    background-color: #74808d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .group-profile-button i {
+    font-size: 18px;
+  }
+  
+  .group-profile-button:hover {
+    background-color: #0056b3;
+  }
+  
+
+  
+.group-list {
+  padding: 10px;
+  background-color: #f9f9f9;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.group-item {
+  padding: 10px;
+  margin: 5px 0;
+  background-color: #ffffff;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border: 1px solid #ddd;
+}
+
+.group-item:hover {
+  background-color: #e6f0ff;
+}
+
+.group-item {
+    padding: 10px;
+    margin: 6px 0;
+    background-color: #fff;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .group-item:hover {
+    background-color: #f0f8ff;
+  }
+  
+  .group-name {
+    font-weight: 500;
+  }
+  
+  .department-tag {
+    background-color: #e0e0e0;
+    color: #333;
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    text-transform: capitalize;
+  }
+  
+/* Chat Message Bubbles */
+.chat-message {
+  max-width: 70%;
+  padding: 10px 16px;
+  border-radius: 12px;
+  margin: 8px 12px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  display: inline-block;
+  clear: both;
+  word-wrap: break-word;
+  position: relative;
+ 
+}
+
+.chat-message.current-user {
+  background-color: #dcfce7;
+  float: right;
+  text-align: right;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-message.other-user {
+  background-color: #fff;
+  float: left;
+  text-align: left;
+  border: 1px solid #e5e7eb;
+  border-bottom-left-radius: 4px;
+}
+
+.message-meta {
+  font-size: 0.6875rem;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.message-sender {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #2f3e56;
+  margin-top: 4px;
+   display: block;
+    font-family: 'Segoe UI Semibold', 'Segoe UI', sans-serif;
+}
+
+.message-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.message-text {
+  white-space: pre-wrap;
+}
+
+#logout-button {
+ 
+  background-color: #d9534f;         /* A red color, indicating logout action */
+  color: white;                      /* White text for contrast */
+  border: none;                      /* Remove border */
+  padding: 10px 20px;                /* Space around the text */
+  font-size: 16px;                   /* Size of the text */
+  border-radius: 6px;                /* Rounded corners */
+  cursor: pointer;                  /* Change cursor to a pointer on hover */
+  display: flex;                     /* Use flex to align icon and text */
+  align-items: center;               /* Center the items vertically */
+  gap: 8px;                          /* Space between text and icon */
+  transition: background-color 0.3s ease, transform 0.3s ease;  /* Smooth transitions */
+}
+
+/* Hover state */
+#logout-button:hover {
+  background-color: #c9302c;         /* Darker red on hover */
+  transform: scale(1.05);             /* Slight scale effect to indicate interaction */
+}
+
+/* Focused state (when the button is clicked or focused) */
+#logout-button:focus {
+  outline: none;                     /* Remove default focus outline */
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Light shadow for focus indication */
+}
+
+.back-button {
+  background-color: #ffffff;         /* Clean white background */
+  color: #007bff;                    /* Soft blue text for professionalism */
+  border: 1px solid #007bff;         /* Blue border to match the text color */
+  padding: 4px 8px;                /* Optimized padding for a balanced look */
+  font-size: 14px;                   /* Clear font size for readability */
+  border-radius: 12px;               /* Rounded corners for a modern, softer feel */
+  cursor: pointer;                  /* Pointer cursor to indicate interactivity */
+  display: inline-flex;              /* Flex to align text and icon */
+  align-items: center;               /* Vertically align text and icon */
+  gap: 8px;                          /* Small space between icon and text */
+  transition: background-color 0.3s, border-color 0.3s; /* Smooth transition on hover */
+}
+
+/* Hover state */
+.back-button:hover {
+  background-color: #f8f9fa;         /* Light background on hover for subtle feedback */
+  color: #0056b3;                    /* Darker blue text on hover for contrast */
+  border-color: #0056b3;             /* Darker blue border on hover for consistency */
+}
+
+/* Focused state */
+.back-button:focus {
+  outline: none;                     /* Remove default focus outline */
+  border-color: #0056b3;             /* Blue border to maintain consistency */
+}
+
+/* Icon Size */
+.back-button i {
+  font-size: 18px;                   /* Icon size slightly smaller for balance */
+}
+

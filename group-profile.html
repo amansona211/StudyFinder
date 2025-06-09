@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Group Profile</title>
+  <style>
+   body {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #f0f2f5, #dfe6ed);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+}
+
+    .container {
+  max-width: 700px;
+  width: 100%;
+  background-color: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+      color: #444;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    .section-title {
+      margin-top: 30px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #555;
+    }
+
+    #membersList {
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 10px;
+      max-height: 150px;
+      overflow-y: auto;
+      margin-top: 10px;
+      background-color: #fafafa;
+    }
+
+    .member-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px;
+      font-size: 14px;
+      border-bottom: 1px solid #eaeaea;
+    }
+
+    .member-item:last-child {
+      border-bottom: none;
+    }
+
+    .remove-btn {
+      background-color: #dc3545;
+      color: white;
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      transition: 0.3s;
+       width: 100px;
+      height: 40px;
+    }
+
+    .remove-btn:hover {
+      background-color: #c82333;
+    }
+
+    .user-list {
+      margin-top: 10px;
+      max-height: 150px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 6px;
+      background-color: #fafafa;
+    }
+
+    .user-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #eaeaea;
+    }
+
+    .user-item:last-child {
+      border-bottom: none;
+    }
+
+    .add-btn {
+      width: 100px;
+      height: 40px;
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      transition: 0.3s;
+    }
+
+    .add-btn:hover {
+      background-color: #218838;
+    }
+
+    button {
+      padding: 12px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s ease;
+      margin-top: 20px;
+      width: 100%;
+    }
+
+    #updateGroupBtn {
+      background-color: #007bff;
+      color: white;
+    }
+
+    #updateGroupBtn:hover {
+      background-color: #0056b3;
+    }
+
+    #backButton {
+      background-color: #6c757d;
+      color: white;
+      margin-top: 10px;
+    }
+
+    #backButton:hover {
+      background-color: #5a6268;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+
+      button {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Group Profile</h2>
+  <form id="groupProfileForm">
+    <label for="groupName">Group Name</label>
+    <input type="text" id="groupName" required>
+
+    <label for="groupDepartment">Department</label>
+    <input type="text" id="groupDepartment" required>
+
+    <div class="section-title">Current Members</div>
+    <div id="membersList"></div>
+
+    <label for="newMemberSearch">Search & Add Members</label>
+    <input type="text" id="newMemberSearch" placeholder="Search by name or email">
+
+    <div id="userListContainer" class="user-list"></div>
+
+    <button type="submit" id="updateGroupBtn">Update Group</button>
+  </form>
+
+  <button id="backButton" onclick="history.back()">← Back to Chat</button>
+</div>
+
+<script type="module">
+  import { auth, db } from './firebase-config.js';
+  import { doc, getDoc, updateDoc, collection, getDocs } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+  import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
+
+  const groupId = new URLSearchParams(window.location.search).get('group');
+  if (!groupId) {
+    alert("Group ID is missing.");
+    location.href = "/";
+  }
+
+  let currentUser = null;
+  let groupMembers = [];
+  let allUsers = [];
+  let groupData = {};
+  let creatorId = null;
+
+  const groupNameInput = document.getElementById('groupName');
+  const groupDepartmentInput = document.getElementById('groupDepartment');
+  const membersList = document.getElementById('membersList');
+  const userListContainer = document.getElementById('userListContainer');
+  const newMemberSearch = document.getElementById('newMemberSearch');
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      alert("Please log in to access group profile.");
+      return;
+    }
+
+    currentUser = user;
+    await loadGroupDetails();
+  });
+
+  async function loadGroupDetails() {
+    try {
+      const groupRef = doc(db, "groups", groupId);
+      const groupSnap = await getDoc(groupRef);
+
+      if (!groupSnap.exists()) throw new Error("Group not found.");
+
+      groupData = groupSnap.data();
+      creatorId = groupData.createdBy; // Updated key name
+
+      groupNameInput.value = groupData.name || '';
+      groupDepartmentInput.value = groupData.department || '';
+      groupMembers = groupData.members || [];
+
+      renderMembers();
+      await loadUsers();
+    } catch (err) {
+      console.error("Failed to load group:", err);
+      alert("Could not load group information.");
+    }
+  }
+
+  async function loadUsers() {
+    try {
+      const userSnaps = await getDocs(collection(db, "users"));
+      allUsers = [];
+
+      userSnaps.forEach(docSnap => {
+        const userData = docSnap.data();
+        const userId = docSnap.id;
+        if (!groupMembers.includes(userId)) {
+          allUsers.push({ id: userId, ...userData });
+        }
+      });
+
+      renderUserList(allUsers);
+    } catch (err) {
+      console.error("Failed to load users:", err);
+      alert("Could not load users.");
+    }
+  }
+
+  async function renderMembers() {
+    if (!groupMembers.length) {
+      membersList.innerHTML = `<div class="member-item">No members yet.</div>`;
+      return;
+    }
+
+    console.log("Current User UID:", currentUser?.uid);
+    console.log("Group Creator UID:", creatorId);
+
+    const membersHTML = await Promise.all(groupMembers.map(async (id) => {
+      const userRef = doc(db, "users", id);
+      const userSnap = await getDoc(userRef);
+      const user = userSnap.data();
+
+      const name = user.name || user.email;
+      const showRemove = creatorId === currentUser?.uid;
+
+      return `
+        <div class="member-item">
+          ${name}
+          ${showRemove ? `<button class="remove-btn" data-user-id="${id}">Remove</button>` : ''}
+        </div>
+      `;
+    }));
+
+    membersList.innerHTML = membersHTML.join('');
+
+    document.querySelectorAll('.remove-btn').forEach(button => {
+      button.addEventListener('click', handleRemoveUser);
+    });
+  }
+
+  function renderUserList(users) {
+    if (!users.length) {
+      userListContainer.innerHTML = `<div class="user-item">No users found.</div>`;
+      return;
+    }
+
+    userListContainer.innerHTML = users.map(user => {
+      const name = user.name || user.email;
+
+      return `
+        <div class="user-item">
+          <span>${name}</span>
+          <button class="add-btn" data-user-id="${user.id}">Add</button>
+        </div>
+      `;
+    }).join('');
+
+    document.querySelectorAll('.add-btn').forEach(button => {
+      button.addEventListener('click', handleAddUser);
+    });
+  }
+
+  async function handleAddUser(event) {
+    const userId = event.target.dataset.userId;
+    if (!userId || groupMembers.includes(userId)) return;
+
+    groupMembers.push(userId);
+
+    try {
+      await updateDoc(doc(db, "groups", groupId), { members: groupMembers });
+      await loadUsers();
+      renderMembers();
+    } catch (err) {
+      console.error("Error adding member:", err);
+      alert("Failed to add member.");
+    }
+  }
+
+  async function handleRemoveUser(event) {
+    const userId = event.target.dataset.userId;
+    if (!userId || creatorId !== currentUser.uid) return;
+
+    groupMembers = groupMembers.filter(id => id !== userId);
+
+    try {
+      await updateDoc(doc(db, "groups", groupId), { members: groupMembers });
+      renderMembers();
+    } catch (err) {
+      console.error("Error removing member:", err);
+      alert("Failed to remove member.");
+    }
+  }
+
+  document.getElementById('groupProfileForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const name = groupNameInput.value.trim();
+    const department = groupDepartmentInput.value.trim();
+
+    if (!name || !department) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    try {
+      await updateDoc(doc(db, "groups", groupId), { name, department });
+      alert("Group updated successfully.");
+    } catch (err) {
+      console.error("Error updating group:", err);
+      alert("Failed to update group.");
+    }
+  });
+</script>
+
+</body>
+</html>
